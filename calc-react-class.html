@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Monofett&display=swap');
+
+        @font-face {
+            font-family: 'Digital Numbers';
+            src: url('./DigitalNumbers-Regular.ttf');
+        }
+
+        body {
+            font: 14px "Century Gothic", Futura, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #calc_body {
+            height: 400px;
+            width: 300px;
+            border-radius: 20px;
+            background-color: slategrey;
+            box-shadow: 5px 10px 40px black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #display {
+            height: 40px;
+            width: 250px;
+            border-radius: 10px;
+            background-color: lightcyan;
+            border: 1px solid black;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 1.5rem;
+            font-family: 'Digital Numbers', 'Monofett', cursive;
+            box-sizing: border-box;
+            padding: 0 5px;
+        }
+
+        #keypad {
+            height: 280px;
+            width: 240px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            border: 1px solid black;
+            /* background-color: red; */
+        }
+
+        .key {
+            box-sizing: border-box;
+            height: 70px;
+            width: 80px;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: ivory;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script type="text/babel">
+        // To forward key events from the body to the React component. This is kludgey. Don't do this in production.
+        let messager = null;
+        document.body.addEventListener("keypress", function (evt) {
+            // console.log("BODY:", evt.key);
+            if (messager) messager(evt);
+        });
+
+        class Calc extends React.Component {
+            currentTotal = 0;  // Running total for the calculator.
+            prevKey = "=";  // To handle repeated pushes of operator keys (eg. +, *, =)
+            prevOper = "=";  // To make sure we can evaluate the last operand after hitting =.
+            firstOperand = true;  // Main for the multiply/divide, since we can't start multiplying/dividing with 0.
+
+            constructor(props) {
+                super(props);
+                this.state = {
+                    input: "0",
+                }
+
+                messager = this.keyHandler;  // Tie our keyHandler back to the global key handler.
+            }
+
+            keyHandler = (evt) => {
+                // console.log("Calc: keyHandler: key:", evt.key);
+                this.newInput(evt.key);
+            }
+
+            newInput = (char) => {
+                // console.log("Calc: newInput: char:", char);
+                let newNum = this.state.input;
+
+                if (char == "+") {
+                    if (this.prevKey !== "+") {
+                        this.currentTotal += parseInt(this.state.input);
+                        this.prevOper = char;
+                        this.firstOperand = false;
+                    }
+                }
+                else if (char == "*") {
+                    if (this.prevKey !== "*") {
+                        if (this.firstOperand) this.currentTotal = parseInt(this.state.input);
+                        else this.currentTotal *= parseInt(this.state.input);
+
+                        this.prevOper = char;
+                        this.firstOperand = false;
+                    }
+                }
+                else if (char == "=") {
+                    if (this.prevKey !== "=") {
+                        // console.log("Calc: newInput: char == =: input:", this.state.input);
+                        if (this.prevOper == "+") this.currentTotal += parseInt(this.state.input);
+                        if (this.prevOper == "*") {
+                            if (this.firstOperand) this.currentTotal = parseInt(this.state.input);
+                            else this.currentTotal *= parseInt(this.state.input);
+                        }
+
+                        newNum = this.currentTotal;
+                        this.currentTotal = 0;
+                        this.firstOperand = true;
+                    }
+                }
+                else if (isNaN(parseInt(this.prevKey))) {
+                    newNum = "" + char;
+                }
+                else newNum = this.state.input + char;
+
+                this.setState({ input: newNum, });
+                this.prevKey = char;
+            }
+
+            render() {
+                // console.log("Calc: render: input:", this.state.input);
+                return (
+                    <div id="calc_body">
+                        <Display nums={this.state.input} />
+                        <KeyPad onNewInput={this.newInput}></KeyPad>
+                    </div>
+                )
+            }
+        }
+
+        // class Display extends React.Component {
+        //     render() {
+        //         return (
+        //             <div id="display">{this.props.nums}</div>
+        //         )
+        //     }
+        // }
+
+        // Changed above to a functional component because it is only being used for display.
+        function Display(props) {
+            return (<div id="display">{props.nums}</div>);
+        }
+
+        class KeyPad extends React.Component {
+            // all_keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "0", "="];  // This way or with constructor.
+            all_keys = [];
+
+            constructor(props) {
+                super(props);
+
+                for (let i = 1; i < 10; i++) this.all_keys.push("" + i);
+                this.all_keys.push("+");
+                // this.all_keys.push("0");
+                this.all_keys.push("*");
+                this.all_keys.push("=");
+            }
+
+            // Lifecycle function -- called automatically by React when this component is mounted to the DOM (shadow DOM).
+            // componentDidMount() {
+            //     console.log("KeyPad: componentDidMount.");
+            // }
+
+            keyPushed = (key) => {
+                // console.log("KeyPad: keyPushed: key:", key);
+                this.props.onNewInput(key);
+            }
+
+            // Lifecycle function -- called automatically anytime the component needs to be redrawn.
+            render() {
+                const all_keys_comp = [];
+                this.all_keys.forEach(
+                    (this_key, idx) => all_keys_comp.push(
+                        <Key key={"key" + idx} val={this_key} keyPushed={this.keyPushed} />
+                    ));
+
+                return (
+                    <div id="keypad">
+                        {all_keys_comp}
+                    </div>
+                )
+            }
+        }
+
+        class Key extends React.Component {
+            handleClick = (evt) => {
+                // console.log("Key: handleClick: num:", evt.target.innerHTML);
+                this.props.keyPushed(evt.target.innerHTML);
+            }
+
+            render() {
+                return (
+                    <button className="key" onClick={this.handleClick}>{this.props.val}</button>
+                )
+            }
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<Calc />)
+    </script>
+</body>
+
+</html>

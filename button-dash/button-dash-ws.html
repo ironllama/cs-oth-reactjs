@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #666;
+            --button-dim: 200px;
+            --button-boxshadow: calc(var(--button-dim) * 0.05);
+        }
+
+        #button_area {
+            margin-bottom: 40px;
+            max-width: 750px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #sections {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        /* Button CSS adapted from https://codepen.io/mjweaver01/pen/BNdWvj */
+        button {
+            background: #b3b3b3;
+            width: var(--button-dim);
+            height: var(--button-dim);
+            box-shadow: 0 calc(var(--button-boxshadow) * 0.5) 0 #888888,
+                0 var(--button-boxshadow) 0 #888888,
+                0 calc(var(--button-boxshadow) * 1.5) 0 #888888,
+                calc(var(--button-boxshadow) * 0.5) calc(var(--button-boxshadow) * 2) 0 hsla(0, 0%, 0%, .2);
+            border-radius: 50%;
+            cursor: pointer;
+            transform: perspective(75cm) rotateX(45deg);
+        }
+
+        button:before {
+            position: absolute;
+            top: calc(var(--button-dim) * -0.12);
+            left: calc(var(--button-dim) * 0.09);
+            width: calc(var(--button-dim) * .80);
+            height: calc(var(--button-dim) * .80);
+            border-radius: inherit;
+            background-color: #FF0017;
+            content: 'DO IT';
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--button-dim) * 0.18);
+            font-weight: bold;
+            box-shadow: 0 var(--button-boxshadow) 0 #df0014,
+                0 calc(var(--button-boxshadow) * 2) 0 #df0014,
+                0 calc(var(--button-boxshadow) * 3) 0 #df0014,
+                0 calc(var(--button-boxshadow) * 4) 0 #df0014,
+                var(--button-boxshadow) calc(var(--button-boxshadow) * 7) 0 hsl(0deg 0% 0% / 10%);
+            transition: all 100ms;
+        }
+
+        button:active:before {
+            top: 0px;
+            box-shadow: 0 16px #DF0014, 0 16px #DF0014, 0 16px #DF0014, 0 16px #DF0014, 5px 20px 0 hsla(0, 0%, 0%, .1);
+        }
+
+        #sections {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        #num_section {
+            margin: 0px 25px;
+            padding: 30px;
+            border: 3px solid #FF0017;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .title {
+            margin-bottom: 10px;
+        }
+
+        #num {
+            font-size: 5em;
+            color: #FF0017;
+        }
+
+        #time_section {
+            width: 500px;
+        }
+
+        #time {
+            padding: 0 0 0 10px;
+            height: 225px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="button_area">
+        <button>DO IT</button>
+    </div>
+    <div id="sections">
+        <div id="num_section">
+            <div id="num_title" class="title">Num times pressed:</div>
+            <div id="num">0</div>
+        </div>
+        <div id="time_section">
+            <div id="time_title" class="title">Pressed logs:</div>
+            <div id="time"></div>
+        </div>
+    </div>
+
+    <script src="button-dash-ws.js"></script>
+    <script>
+        let numPressed = 0;
+
+        // document.querySelector("button").addEventListener("click", hit);
+        // function hit() {
+        //     numPressed++;
+        //     num.innerHTML = numPressed;
+
+        //     time.innerHTML += new Date() + "</br>";
+        //     time.scrollTop = timeElem.scrollHeight;
+        // }
+
+        document.querySelector("button").addEventListener("click", hit);
+        function hit() {
+            ws.send("HIT");
+        }
+
+        const ws = wsConnect();
+        ws.addEventListener('message', updateDashes)
+        function updateDashes(inMessage) {
+            const data = JSON.parse(inMessage.data);
+            num.innerHTML = data[0];
+            time.innerHTML += data[1] + "</br>";
+            time.scrollTop = time.scrollHeight;
+        }
+
+    </script>
+</body>
+
+</html>

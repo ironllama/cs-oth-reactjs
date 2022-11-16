@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="button-dash-pub-button.css">
+    <link rel="stylesheet" href="button-dash-pub-num.css">
+    <link rel="stylesheet" href="button-dash-pub-time.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #666;
+        }
+
+        #button_area {
+            margin-bottom: 40px;
+            max-width: 850px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #sections {
+            max-width: 850px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="button_area"></div>
+    <div id="sections"></div>
+
+    <script src="button-dash-pub-button.js"></script>
+    <script src="button-dash-pub-num.js"></script>
+    <script src="button-dash-pub-time.js"></script>
+    <!-- <script src="../button-dash-ws.js"></script> -->
+    <script src="button-dash-pub-ws.js"></script>
+    <script>
+        const bigRed = new BigRedButton(button_area, 'DO IT');
+        const bigRed2 = new BigRedButton(button_area, 'DO IT');
+        const bigRed3 = new BigRedButton(button_area, 'DO IT');
+        const bigRed4 = new BigRedButton(button_area, 'DO IT');
+        const bigRed5 = new BigRedButton(button_area, 'DO IT');
+        const bigRed6 = new BigRedButton(button_area, 'DO IT');
+        const bigRed7 = new BigRedButton(button_area, 'DO IT');
+        const bigRed8 = new BigRedButton(button_area, 'DO IT');
+
+        // bigRed.addListener(handleHit);
+        // function handleHit() {
+        //     ws.send("HIT");
+        // }
+        // bigRed2.addListener(handleHit);
+        // bigRed3.addListener(handleHit);
+        // bigRed4.addListener(handleHit);
+        // bigRed5.addListener(handleHit);
+        // bigRed6.addListener(handleHit);
+
+        const numSection = new NumDash(sections);
+
+        const numSection2 = new NumDash(sections);
+        const numSection3 = new NumDash(sections);
+        const numSection4 = new NumDash(sections);
+        const numSection5 = new NumDash(sections);
+        const numSection6 = new NumDash(sections);
+
+        const timeSection = new TimeDash(sections);
+
+        // Connect to websocket!
+        const ws = wsConnect();
+        // ws.addEventListener('message', updateDashes)
+        // function updateDashes(inMessage) {
+        //     const data = JSON.parse(inMessage.data);
+        //     numSection.hit(data[0]);
+        //     timeSection.hit(data[1]);
+
+        //     numSection2.hit(data[0]);
+        //     numSection3.hit(data[0]);
+        //     numSection4.hit(data[0]);
+        //     numSection5.hit(data[0]);
+        //     numSection6.hit(data[0]);
+        // }
+
+    </script>
+</body>
+
+</html>

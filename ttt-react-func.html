@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tictactoe - React</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <style>
+        body {
+            font: 14px "Century Gothic", Futura, sans-serif;
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        ol {
+            padding-left: 30px;
+        }
+
+        .board-row:after {
+            clear: both;
+            content: "";
+            display: table;
+        }
+
+        .status {
+            margin-bottom: 10px;
+        }
+
+        .square {
+            background: #fff;
+            border: 1px solid #999;
+            float: left;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 34px;
+            height: 34px;
+            margin-right: -1px;
+            margin-top: -1px;
+            padding: 0;
+            text-align: center;
+            width: 34px;
+        }
+
+        .square:focus {
+            outline: none;
+        }
+
+        .kbd-navigation .square:focus {
+            background: #ddd;
+        }
+
+        .game {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .game-info {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function Square(props) {
+            return (
+                <button className="square" onClick={() => { props.onMark(); }}>
+                    {props.val}
+                </button>
+            );
+        }
+
+
+        // This function can live alone -- doesn't change state or need anything other than the squares array to do it's thing.
+        // It could have been included as part of Board, but to keep it from getting redefined with every Board render, I've
+        // moved it outside.
+        function calculateWinner(squares) {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6],
+            ];
+            // const squares = this.state.history[this.state.history.length - 1].squares;
+            // console.log("calcuate squares:", squares, this.state);
+            for (let i = 0; i < lines.length; i++) {
+                const [a, b, c] = lines[i];
+                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                    return squares[a];
+                }
+            }
+            return null;
+        }
+
+        function Board(props) {
+            const [history, setHistory] = React.useState([{ squares: Array(9).fill(null), }]);
+            const [stepNumber, setStepNumber] = React.useState(0);
+            const [xIsNext, setXIsNext] = React.useState(true);
+
+
+            function renderSquare(i) {
+                // const currentSquares = this.state.history[this.state.history.length - 1].squares;
+                const currentSquares = history[stepNumber].squares;
+                return <Square
+                    val={currentSquares[i]}
+                    onMark={() => handleClick(i)}
+                />;
+
+                // Instead of using the simple Square component above, this could also have been built here:
+                // return (
+                //     <button className="square" onClick={() => handleClick(i)}>
+                //         {currentSquares[i]}
+                //     </button>
+                // );
+            }
+
+            // Using the useCallback probably doesn't really save that much performance, but to show how it could be used, I've included it.
+            const handleClick = React.useCallback((i) => {
+                const cpy_history = history.slice(0, stepNumber + 1);
+                const curr_history = cpy_history[cpy_history.length - 1];
+                const squares = curr_history.squares.slice();  // Need to re-slice, because of shallow copying of history.slice()
+
+                if (calculateWinner(squares) || squares[i]) { return; }  // If game already over, or square already has mark.
+
+                squares[i] = xIsNext ? "X" : "O";
+                setHistory(cpy_history.concat([{ squares: squares }]));
+                setStepNumber(cpy_history.length);
+                setXIsNext(!xIsNext);
+            }, [stepNumber]);
+
+            function jumpTo(step) {
+                setStepNumber(step);
+                setXIsNext((step % 2) === 0);
+            }
+
+
+            const winner = calculateWinner(history[stepNumber].squares);
+            const status = winner ? 'Winner: ' + winner : 'Next player: ' + (xIsNext ? 'X' : 'O');
+            const moves = history.map((step, move) => {
+                const desc = move ? 'Go to move #' + move : 'Go to game start';
+                return (
+                    <li key={"jump" + move}>
+                        <button onClick={() => jumpTo(move)}>{desc}</button>
+                    </li>
+                );
+            });
+
+            return (
+                <div className="game">
+                    <div className="game-board">
+                        <div>
+                            { /*<div className="status">{status}</div> */}
+                            <div className="board-row">
+                                {renderSquare(0)}
+                                {renderSquare(1)}
+                                {renderSquare(2)}
+                            </div>
+                            <div className="board-row">
+                                {renderSquare(3)}
+                                {renderSquare(4)}
+                                {renderSquare(5)}
+                            </div>
+                            <div className="board-row">
+                                {renderSquare(6)}
+                                {renderSquare(7)}
+                                {renderSquare(8)}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="game-info">
+                        <div>{status}</div>
+                        <ol>{moves}</ol>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<Board />);
+
+    </script>
+</body>
+
+</html>

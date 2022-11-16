@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tictactoe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* flex-direction: column; */
+            height: 100vh;
+        }
+
+        #gameinfo {
+            font-size: 1em;
+            font-family: sans-serif;
+            margin: 0 0 0 20px;
+            min-height: calc(34px * 3);
+        }
+
+        #playarea {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .col {
+            height: 34px;
+            width: 34px;
+            border: 1px solid #999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            font-size: 24px;
+            margin-right: -1px;
+            margin-top: -1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="playarea">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <div id="gameinfo">
+        <div id="status">Next player: </div>
+        <ol></ol>
+    </div>
+    <script>
+        const allCells = document.querySelectorAll(".col");
+        const statusElem = document.querySelector("#status");
+        const movesElem = document.querySelector("#gameinfo ol");
+
+        let urlParams = {};
+        let stateOfBoard = [];
+        let orig_history = [];
+
+        let history = [];
+        let stepNumber = 0;  // Used to determine where to add history -- important with flexible jumpTo.
+        let winner = null;
+
+        function getHistoryFromURL() {
+            urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mvs')) orig_history = urlParams.get('mvs').split(',');
+            if (urlParams.has('stp')) stepNumber = parseInt(urlParams.get('stp'));
+        }
+
+        getHistoryFromURL();
+        render();
+
+        function handleClick(evt, idx) {
+            let currMark = evt.target.innerHTML;
+            if (!currMark && !winner) {  // Only react if there is not already a mark on this square.
+                // Update the screen with new mark and update gameinfo
+                history.push(((stepNumber % 2 === 0) ? "X" : "O") + idx);
+                urlParams.set('stp', stepNumber + 1);
+                urlParams.set('mvs', history.join(","));
+                location.href = location.pathname + '?' + urlParams;
+            }
+        }
+
+        function jumpTo(idx) {
+            stepNumber = idx;
+            render();
+        }
+
+        function renderSquares(stateOfBoard) {
+            document.querySelectorAll(".col").forEach((thisCell, idx) => { // Do for each cell
+                // const match = history.find(move => move[1] == idx);
+                // if (match) thisCell.innerHTML = match[0];
+                thisCell.innerHTML = stateOfBoard[idx];
+                thisCell.addEventListener("click", (evt) => handleClick(evt, idx));
+            });
+        }
+
+        function renderPastMoves(idx) {
+            const newItemText = document.createTextNode((idx === 0) ? 'Go to game start' : "Go to move #" + idx);
+            const newButton = document.createElement("button");
+            newButton.appendChild(newItemText);
+            const newItem = document.createElement("li");
+            newItem.appendChild(newButton);
+            movesElem.appendChild(newItem);
+
+            newItem.addEventListener("click", () => jumpTo(idx));
+        }
+
+        function render() {
+            stateOfBoard = Array(9).fill(null);  // Reset the state of board, since render only loops over history.
+            history = orig_history.slice(0, stepNumber);
+            history.forEach(move => stateOfBoard[move[1]] = move[0]);
+
+            renderSquares(stateOfBoard);
+
+            winner = calculateWinner(stateOfBoard);
+            statusElem.innerHTML = winner !== 0 ? 'Winner: ' + winner : 'Next player: ' + ((stepNumber % 2 === 0) ? "X" : "O");
+            movesElem.innerHTML = '';
+
+            renderPastMoves(0);
+            orig_history.forEach((squares, idx) => renderPastMoves(idx + 1));
+        }
+
+        function calculateWinner(allMarks) {
+            // Check if any rows are wins.
+            function checkHoriz(cellNum) {
+                if (allMarks[cellNum]) {
+                    if (allMarks[cellNum + 1] == allMarks[cellNum] &&
+                        allMarks[cellNum + 2] == allMarks[cellNum])
+                        return allMarks[cellNum];
+                }
+                return 0;
+            }
+            if (checkHoriz(0) !== 0) return allMarks[0];
+            else if (checkHoriz(3) !== 0) return allMarks[3];
+            else if (checkHoriz(6) !== 0) return allMarks[6];
+
+            // Check if any cols are wins.
+            function checkVert(cellNum) {
+                if (allMarks[cellNum]) {
+                    if (allMarks[cellNum + 3] == allMarks[cellNum] &&
+                        allMarks[cellNum + 6] == allMarks[cellNum])
+                        return allMarks[cellNum];
+                }
+                return 0;
+            }
+            if (checkVert(0) !== 0) return allMarks[0];
+            else if (checkVert(1) !== 0) return allMarks[1];
+            else if (checkVert(2) !== 0) return allMarks[2];
+
+            // Check diagonals.
+            if (allMarks[0] && allMarks[0] === allMarks[4] && allMarks[0] === allMarks[8]) return allMarks[0];
+            if (allMarks[2] && allMarks[2] === allMarks[4] && allMarks[2] === allMarks[6]) return allMarks[2];
+
+            return 0;
+        }
+    </script>
+</body>
+
+</html>

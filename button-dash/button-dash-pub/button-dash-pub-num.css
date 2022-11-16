@@ -1,0 +1,16 @@
+.title {
+    margin-bottom: 10px;
+}
+
+.num_section {
+    margin: 25px;
+    padding: 30px;
+    border: 3px solid #FF0017;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.num {
+    font-size: 5em;
+    color: #FF0017;
+}

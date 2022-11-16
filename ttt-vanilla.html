@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tictactoe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #header {
+            font-size: 2em;
+            font-family: sans-serif;
+            margin: 0 0 20px 0;
+        }
+
+        #playarea {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .col {
+            height: 100px;
+            width: 100px;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        Next player: <span id="current"></span>
+    </div>
+    <div id="playarea">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <script>
+        const allCells = document.querySelectorAll(".col");
+        const header = document.querySelector("#header");
+
+        let currPlayer = "O";
+        const current = document.querySelector("#current");
+        current.innerHTML = currPlayer;
+
+        function handleClick(evt) {
+            let currMark = evt.target.innerHTML;
+            if (!currMark) {
+                // Update the screen with new mark and update header
+                evt.target.innerHTML = currPlayer;
+
+                let end = checkEnd();
+                if (end === 1) {
+                    allCells.forEach(remCell => {
+                        remCell.removeEventListener('click', handleClick);
+                    });
+
+                    header.innerHTML = `Winner: ${currPlayer}`;
+                } else {
+                    if (currPlayer == "X") currPlayer = "O"; // Toggle between players.
+                    else currPlayer = "X";
+                    current.innerHTML = currPlayer;
+                }
+            }
+        }
+
+        allCells.forEach(thisCell => { // Do for each cell
+            thisCell.addEventListener("click", handleClick);
+        });
+
+        function checkEnd() {
+            // Get all the marks.
+            const allMarks = [];
+            allCells.forEach(thisCell => {
+                let currMark = thisCell.innerHTML;
+                allMarks.push(currMark);
+            });
+            console.log("allMarks:", allMarks.join(", "));
+
+            // Check if any rows are wins.
+            function checkHoriz(cellNum) {
+                if (allMarks[cellNum]) {
+                    if (allMarks[cellNum + 1] == allMarks[cellNum] &&
+                        allMarks[cellNum + 2] == allMarks[cellNum])
+                        return 1;
+                }
+            }
+            if (checkHoriz(0) == 1) return 1;
+            else if (checkHoriz(3) == 1) return 1;
+            else if (checkHoriz(6) == 1) return 1;
+
+            function checkVert(cellNum) {
+                if (allMarks[cellNum]) {
+                    if (allMarks[cellNum + 3] == allMarks[cellNum] &&
+                        allMarks[cellNum + 6] == allMarks[cellNum])
+                        return 1;
+                }
+            }
+            if (checkVert(0) == 1) return 1;
+            else if (checkVert(1) == 1) return 1;
+            else if (checkVert(2) == 1) return 1;
+
+            if (allMarks[0] && allMarks[0] === allMarks[4] && allMarks[0] === allMarks[8]) return 1;
+            if (allMarks[2] && allMarks[2] === allMarks[4] && allMarks[2] === allMarks[6]) return 1;
+        }
+    </script>
+</body>
+
+</html>
