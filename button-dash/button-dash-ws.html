@@ -143,20 +143,23 @@
         //     time.scrollTop = timeElem.scrollHeight;
         // }
 
-        document.querySelector("button").addEventListener("click", hit);
+        document.querySelectorAll("button").forEach(thisButton => {
+            thisButton.addEventListener("click", hit);
+        });
+
         function hit() {
             ws.send("HIT");
         }
 
         const ws = wsConnect();
         ws.addEventListener('message', updateDashes)
+
         function updateDashes(inMessage) {
             const data = JSON.parse(inMessage.data);
             num.innerHTML = data[0];
             time.innerHTML += data[1] + "</br>";
             time.scrollTop = time.scrollHeight;
         }
-
     </script>
 </body>
 

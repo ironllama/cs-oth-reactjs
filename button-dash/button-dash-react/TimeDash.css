@@ -1,0 +1,14 @@
+.title {
+    margin-bottom: 10px;
+}
+
+#time_section {
+    margin: 25px;
+    width: 500px;
+}
+
+#time {
+    padding: 0 0 0 10px;
+    height: 225px;
+    overflow-y: auto;
+}

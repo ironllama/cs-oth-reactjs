@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="BigRedButton.css">
+    <link rel="stylesheet" href="NumDash.css">
+    <link rel="stylesheet" href="TimeDash.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: sans-serif;
+            font-weight: bold;
+            color: #666;
+        }
+
+        #button_area {
+            margin-bottom: 40px;
+            max-width: 850px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #sections {
+            max-width: 850px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="button-dash-react-ws.js"></script>
+    <script type="text/babel" src="BigRedButton.js"></script>
+    <script type="text/babel" src="NumDash.js"></script>
+    <script type="text/babel" src="TimeDash.js"></script>
+    <script type="text/babel">
+        const ws = wsConnect();
+
+        function Dashboard(props) {
+            const [num, setNum] = React.useState(0);
+            const [allTime, setAllTime] = React.useState('');
+
+            React.useEffect(() => {
+                ws.addEventListener('message', function(inMessage) {
+                    const newData = JSON.parse(inMessage.data);
+                    setNum(newData[0]);
+                    setAllTime((prev) => prev + newData[1] + "\n");
+                });
+
+                return () => { ws.close(); }
+            }, []);
+
+            function handleBigRedClick() {
+                ws.send("HIT");
+            }
+
+            return (
+                <div>
+                    <div id="button_area">
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                        <BigRedButton bigredclick={handleBigRedClick} text="DO IT" />
+                    </div>
+                    <div id="sections">
+                        <NumDash num={num} />
+                        <TimeDash allTime={allTime} />
+                    </div>
+                </div>
+            );
+        }
+
+
+        const root = ReactDOM.createRoot(document.body);
+        root.render(<Dashboard />);
+    </script>
+</body>
+
+</html>

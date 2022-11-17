@@ -52,6 +52,7 @@
     <script src="../button-dash-ws.js"></script>
     <script>
         const bigRed1 = new BigRedButton(button_area, 'DO IT', handleBigRedClick);
+
         function handleBigRedClick() {
             // If not using a WS, or if the WS server doesn't reflect messages back to the sender.
             // numSection.hit();
@@ -81,6 +82,7 @@
         // Connect to websocket!
         const ws = wsConnect();
         ws.addEventListener('message', updateDashes);
+
         function updateDashes(inMessage) {
             const data = JSON.parse(inMessage.data);
             numSection.hit(data[0]);
@@ -92,7 +94,6 @@
             // numSection5.hit(data[0]);
             // numSection6.hit(data[0]);
         }
-
     </script>
 </body>
 
