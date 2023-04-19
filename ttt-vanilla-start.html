@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tictactoe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #header {
+            font-size: 2em;
+            font-family: sans-serif;
+            margin: 0 0 20px 0;
+        }
+
+        #playarea {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .col {
+            height: 100px;
+            width: 100px;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        Next player: <span id="current"></span>
+    </div>
+    <div id="playarea">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <script>
+        const allCells = document.querySelectorAll(".col");
+        const header = document.querySelector("#header");
+
+        // let currPlayer = "O";
+        let move = 0;
+        const current = document.querySelector("#current");
+        // current.innerHTML = currPlayer;
+        current.innerHTML = move % 2 == 0 ? 'X' : 'O';
+
+        function handleClick(evt) {
+            let currMark = evt.target.innerHTML;
+            if (!currMark) {
+                // Update the screen with new mark and update header
+                let currPlayer = move % 2 == 0 ? 'X' : 'O';
+
+                evt.target.innerHTML = currPlayer;
+
+                let squares = Array.from(allCells).map(cell => cell.textContent ? cell.textContent : null);
+
+                let end = calculateWinner(squares);
+                if (end) {
+                    allCells.forEach(remCell => {
+                        remCell.removeEventListener('click', handleClick);
+                    });
+
+                    header.innerHTML = `Winner: ${currPlayer}`;
+                } else {
+                    if (currPlayer == "X") currPlayer = "O"; // Toggle between players.
+                    else currPlayer = "X";
+                    current.innerHTML = currPlayer;
+                }
+
+                move += 1;
+            }
+        }
+
+        allCells.forEach(thisCell => { // Do for each cell
+            thisCell.addEventListener("click", handleClick);
+        });
+
+        function calculateWinner(squares) {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6],
+            ];
+            // const squares = this.state.history[this.state.history.length - 1].squares;
+            // console.log("calcuate squares:", squares, this.state);
+            for (let i = 0; i < lines.length; i++) {
+                const [a, b, c] = lines[i];
+                if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+                    return squares[a];
+                }
+            }
+            return null;
+        }
+    </script>
+</body>
+
+</html>

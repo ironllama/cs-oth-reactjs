@@ -94,8 +94,15 @@
                 if (winner) return;
 
                 squares[idx] = stepNumber % 2 === 0 ? "X" : "O";
-                history = cpy_history.concat({ squares });  // Which means this needs to add a copy of the status DOM.
+
+                // cpy_history.push({ squares });
+                // history = cpy_history;
+                // stepNumber = cpy_history.length - 1;
+
+                // Same as above, but shorter with concat. Adds 1 extra object to GC, tho.
+                history = cpy_history.concat([{ squares }]);  // Which means this needs to add a copy of the status DOM.
                 stepNumber = cpy_history.length;
+
                 render();  // Already checked winner, though!
             }
         }
